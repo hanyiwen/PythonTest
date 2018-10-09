@@ -27,3 +27,4 @@ for i in range(100):
     grads = tape.gradient(loss, model.variables)
     optimizer.apply_gradients(grads_and_vars=zip(grads, model.variables))
 print(model.variables)
+
