@@ -47,14 +47,17 @@ class DDPG(object):
 
         self.a = self._build_a(self.S, )
         q = self._build_c(self.S, self.a, )
+
         a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='Actor')
         c_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='Critic')
+
         ema = tf.train.ExponentialMovingAverage(decay=1 - TAU)  # soft replacement
 
         def ema_getter(getter, name, *args, **kwargs):
             return ema.average(getter(name, *args, **kwargs))
 
         target_update = [ema.apply(a_params), ema.apply(c_params)]  # soft update operation
+        # target networks do not need training
         a_ = self._build_a(self.S_, reuse=True, custom_getter=ema_getter)  # replaced target parameters
         q_ = self._build_c(self.S_, a_, reuse=True, custom_getter=ema_getter)
 
@@ -90,9 +93,12 @@ class DDPG(object):
 
     def _build_a(self, s, reuse=None, custom_getter=None):
         trainable = True if reuse is None else False
+        # However, a custom getter can be applied to
+        # change the existing tensor that is returned by tf.get_variable.
         with tf.variable_scope('Actor', reuse=reuse, custom_getter=custom_getter):
             net = tf.layers.dense(s, 30, activation=tf.nn.relu, name='l1', trainable=trainable)
             a = tf.layers.dense(net, self.a_dim, activation=tf.nn.tanh, name='a', trainable=trainable)
+            # since activation=tf.nn.tanh, tf.multiply(a, self.a_bound, name='scaled_a') is needed
             return tf.multiply(a, self.a_bound, name='scaled_a')
 
     def _build_c(self, s, a, reuse=None, custom_getter=None):
