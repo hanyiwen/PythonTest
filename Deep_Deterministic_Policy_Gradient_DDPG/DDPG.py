@@ -124,7 +124,8 @@ class Critic(object):
             self.q = self._build_net(S, self.a, 'eval_net', trainable=True)
 
             # Input (s_, a_), output q_ for q_target
-            self.q_ = self._build_net(S_, a_, 'target_net', trainable=False)    # target_q is based on a_ from Actor's target_net
+            self.q_ = self._build_net(S_, a_, 'target_net', trainable=False)
+            # target_q is based on a_ from Actor's target_net
 
             self.e_params = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='Critic/eval_net')
             self.t_params = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='Critic/target_net')
@@ -161,7 +162,8 @@ class Critic(object):
                 net = tf.nn.relu(tf.matmul(s, w1_s) + tf.matmul(a, w1_a) + b1)
 
             with tf.variable_scope('q'):
-                q = tf.layers.dense(net, 1, kernel_initializer=init_w, bias_initializer=init_b, trainable=trainable)   # Q(s,a)
+                q = tf.layers.dense(net, 1, kernel_initializer=init_w, bias_initializer=init_b, trainable=trainable)
+                # Q(s,a)
         return q
 
     def learn(self, s, a, r, s_):
@@ -189,6 +191,7 @@ class Memory(object):
         self.pointer += 1
 
     def sample(self, n):
+        # assure only when the memory is full it can be sampled
         assert self.pointer >= self.capacity, 'Memory has not been fulfilled'
         indices = np.random.choice(self.capacity, size=n)
         return self.data[indices, :]
