@@ -171,6 +171,7 @@ class Worker(object):
                     GLOBAL_EP += 1
                     break
 
+
 if __name__ == "__main__":
     SESS = tf.Session()
 
