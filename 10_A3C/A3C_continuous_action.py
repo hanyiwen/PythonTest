@@ -40,10 +40,13 @@ N_S = env.observation_space.shape[0]
 N_A = env.action_space.shape[0]
 A_BOUND = [env.action_space.low, env.action_space.high]
 
-
+# 这个 class 可以被调用生成一个 global net.
+# 也能被调用生成一个 worker 的 net, 因为他们的结构是一样的,
+# 所以这个 class 可以被重复利用.
 class ACNet(object):
     def __init__(self, scope, globalAC=None):
-
+        # 当创建 worker 网络的时候, 我们传入之前创建的 globalAC 给这个 worker
+        # 判断当下建立的网络是 local 还是 global
         if scope == GLOBAL_NET_SCOPE:   # get global network
             with tf.variable_scope(scope):
                 self.s = tf.placeholder(tf.float32, [None, N_S], 'S')
@@ -78,6 +81,8 @@ class ACNet(object):
                     self.a_grads = tf.gradients(self.a_loss, self.a_params)
                     self.c_grads = tf.gradients(self.c_loss, self.c_params)
 
+            # 接着计算 critic loss 和 actor loss
+            # 用这两个 loss 计算要推送的 gradients
             with tf.name_scope('sync'):
                 with tf.name_scope('pull'):
                     self.pull_a_params_op = [l_p.assign(g_p) for l_p, g_p in zip(self.a_params, globalAC.a_params)]
@@ -119,7 +124,12 @@ class Worker(object):
     def work(self):
         global GLOBAL_RUNNING_R, GLOBAL_EP
         total_step = 1
+        # s, a, r 的缓存, 用于 n_steps 更新
         buffer_s, buffer_a, buffer_r = [], [], []
+        # 使用 coord.should_stop()来查询是否应该终止所有线程
+        # 当文件队列（queue）中的所有文件都已经读取出列的时候，会抛出一个
+        # OutofRangeError
+        # 的异常，这时候就应该停止Session中的所有线程了
         while not COORD.should_stop() and GLOBAL_EP < MAX_GLOBAL_EP:
             s = self.env.reset()
             ep_r = 0
@@ -135,12 +145,16 @@ class Worker(object):
                 buffer_a.append(a)
                 buffer_r.append((r+8)/8)    # normalize
 
+                # 每 UPDATE_GLOBAL_ITER 步 或者回合完了, 进行 sync 操作
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:   # update global and assign to local net
+                    # 获得用于计算 TD error 的 下一 state 的 value
                     if done:
                         v_s_ = 0   # terminal
                     else:
                         v_s_ = SESS.run(self.AC.v, {self.AC.s: s_[np.newaxis, :]})[0, 0]
+                    # 下 state value 的缓存, 用于算 TD
                     buffer_v_target = []
+                    # 进行 n_steps forward view
                     for r in buffer_r[::-1]:    # reverse buffer r
                         v_s_ = r + GAMMA * v_s_
                         buffer_v_target.append(v_s_)
@@ -152,8 +166,11 @@ class Worker(object):
                         self.AC.a_his: buffer_a,
                         self.AC.v_target: buffer_v_target,
                     }
+                    # 推送更新去 globalAC
                     self.AC.update_global(feed_dict)
+                    # 清空缓存
                     buffer_s, buffer_a, buffer_r = [], [], []
+                    # 获取 globalAC 的最新参数
                     self.AC.pull_global()
 
                 s = s_
@@ -182,6 +199,7 @@ if __name__ == "__main__":
         # Create worker
         for i in range(N_WORKERS):
             i_name = 'W_%i' % i   # worker name
+            # 每个 worker 都有共享这个 global AC
             workers.append(Worker(i_name, GLOBAL_AC))
 
     COORD = tf.train.Coordinator()
@@ -195,9 +213,11 @@ if __name__ == "__main__":
     worker_threads = []
     for worker in workers:
         job = lambda: worker.work()
+        # 添加一个工作线程
         t = threading.Thread(target=job)
         t.start()
         worker_threads.append(t)
+    # tf 的线程调度
     COORD.join(worker_threads)
 
     plt.plot(np.arange(len(GLOBAL_RUNNING_R)), GLOBAL_RUNNING_R)
