@@ -216,7 +216,8 @@ if __name__ == "__main__":
     for worker in workers:
         job = lambda: worker.work()
         # 添加一个工作线程
-        t = threading.Thread(target=job)
+        # t = threading.Thread(target=job)
+        t = threading.Thread(target=worker.work)
         t.start()
         worker_threads.append(t)
     # tf 的线程调度
