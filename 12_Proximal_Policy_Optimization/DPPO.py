@@ -73,6 +73,7 @@ class PPO(object):
                 data = [QUEUE.get() for _ in range(QUEUE.qsize())]      # collect data from all workers
                 data = np.vstack(data)
                 s, a, r = data[:, :S_DIM], data[:, S_DIM: S_DIM + A_DIM], data[:, -1:]
+                print(a.shape)
                 adv = self.sess.run(self.advantage, {self.tfs: s, self.tfdc_r: r})
                 # update actor and critic in a update loop
                 [self.sess.run(self.atrain_op, {self.tfs: s, self.tfa: a, self.tfadv: adv}) for _ in range(UPDATE_STEP)]
@@ -124,7 +125,8 @@ class Worker(object):
                 s = s_
                 ep_r += r
 
-                GLOBAL_UPDATE_COUNTER += 1                      # count to minimum batch size, no need to wait other workers
+                # count to minimum batch size, no need to wait other workers
+                GLOBAL_UPDATE_COUNTER += 1
                 if t == EP_LEN - 1 or GLOBAL_UPDATE_COUNTER >= MIN_BATCH_SIZE:
                     v_s_ = self.ppo.get_v(s_)
                     discounted_r = []                           # compute discounted reward
@@ -176,8 +178,8 @@ if __name__ == '__main__':
     plt.plot(np.arange(len(GLOBAL_RUNNING_R)), GLOBAL_RUNNING_R)
     plt.xlabel('Episode'); plt.ylabel('Moving reward'); plt.ion(); plt.show()
     env = gym.make('Pendulum-v0')
-    while True:
-        s = env.reset()
-        for t in range(300):
-            env.render()
-            s = env.step(GLOBAL_PPO.choose_action(s))[0]
+    # while True:
+    #     s = env.reset()
+    #     for t in range(300):
+    #         env.render()
+    #         s = env.step(GLOBAL_PPO.choose_action(s))[0]

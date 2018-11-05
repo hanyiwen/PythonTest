@@ -68,9 +68,10 @@ class PPO(object):
                 self.kl_mean = tf.reduce_mean(kl)
                 self.aloss = -(tf.reduce_mean(surr - self.tflam * kl))
             else:  # clipping method, find this is better
-                self.aloss = -tf.reduce_mean(tf.minimum(
-                    surr,
-                    tf.clip_by_value(ratio, 1. - METHOD['epsilon'], 1. + METHOD['epsilon']) * self.tfadv))
+                self.aloss = -tf.reduce_mean(
+                    tf.minimum(surr,
+                    tf.clip_by_value(ratio, 1. - METHOD['epsilon'], 1. + METHOD['epsilon']) * self.tfadv)
+                )
 
         with tf.variable_scope('atrain'):
             self.atrain_op = tf.train.AdamOptimizer(A_LR).minimize(self.aloss)
@@ -98,7 +99,8 @@ class PPO(object):
                 METHOD['lam'] *= 2
             METHOD['lam'] = np.clip(METHOD['lam'], 1e-4, 10)  # sometimes explode, this clipping is my solution
         else:  # clipping method, find this is better (OpenAI's paper)
-            [self.sess.run(self.atrain_op, {self.tfs: s, self.tfa: a, self.tfadv: adv}) for _ in range(A_UPDATE_STEPS)]
+            [self.sess.run(self.atrain_op, {self.tfs: s, self.tfa: a, self.tfadv: adv})
+             for _ in range(A_UPDATE_STEPS)]
 
         # update critic
         [self.sess.run(self.ctrain_op, {self.tfs: s, self.tfdc_r: r}) for _ in range(C_UPDATE_STEPS)]
@@ -149,7 +151,10 @@ for ep in range(EP_MAX):
                 discounted_r.append(v_s_)
             discounted_r.reverse()
 
-            bs, ba, br = np.vstack(buffer_s), np.vstack(buffer_a), np.array(discounted_r)[:, np.newaxis]
+            bs, ba, br = \
+                np.vstack(buffer_s), \
+                np.vstack(buffer_a), \
+                np.array(discounted_r)[:, np.newaxis]
             buffer_s, buffer_a, buffer_r = [], [], []
             ppo.update(bs, ba, br)
 
