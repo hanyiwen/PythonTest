@@ -79,9 +79,11 @@ class ACNet(object):
                     self.c_grads = tf.gradients(self.c_loss, self.c_params)
 
             with tf.name_scope('sync'):
+                # global to local
                 with tf.name_scope('pull'):
                     self.pull_a_params_op = [l_p.assign(g_p) for l_p, g_p in zip(self.a_params, globalAC.a_params)]
                     self.pull_c_params_op = [l_p.assign(g_p) for l_p, g_p in zip(self.c_params, globalAC.c_params)]
+                # local to global
                 with tf.name_scope('push'):
                     self.update_a_op = OPT_A.apply_gradients(zip(self.a_grads, globalAC.a_params))
                     self.update_c_op = OPT_C.apply_gradients(zip(self.c_grads, globalAC.c_params))
@@ -146,7 +148,8 @@ class Worker(object):
                         buffer_v_target.append(v_s_)
                     buffer_v_target.reverse()
 
-                    buffer_s, buffer_a, buffer_v_target = np.vstack(buffer_s), np.vstack(buffer_a), np.vstack(buffer_v_target)
+                    buffer_s, buffer_a, buffer_v_target = \
+                        np.vstack(buffer_s), np.vstack(buffer_a), np.vstack(buffer_v_target)
                     feed_dict = {
                         self.AC.s: buffer_s,
                         self.AC.a_his: buffer_a,
