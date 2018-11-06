@@ -13,6 +13,7 @@ import tensorflow as tf
 # print(gradients)
 
 
+
 a = tf.Variable(1.0)
 b = tf.Variable(1.0)
 
