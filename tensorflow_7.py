@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 #
 # w1 = tf.Variable(2.0)
 # w2 = tf.Variable(2.0)
@@ -11,7 +12,6 @@ import tensorflow as tf
 # gradients = tf.gradients(b, xs=[w1, w2])
 #
 # print(gradients)
-
 
 
 a = tf.Variable(1.0)
