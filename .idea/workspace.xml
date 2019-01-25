@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5bd62860-20c8-4ca8-9746-6d084825d184" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="5bd62860-20c8-4ca8-9746-6d084825d184" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -229,10 +227,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-47" />
-    <option name="y" value="-1057" />
+    <option name="x" value="49" />
+    <option name="y" value="-1000" />
     <option name="width" value="1287" />
-    <option name="height" value="1038" />
+    <option name="height" value="845" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
@@ -470,15 +468,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-47" y="-1057" width="1287" height="1038" extended-state="0" />
+    <frame x="49" y="-1000" width="1287" height="845" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24176706" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21044177" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.8127313" visible="true" weight="0.2410148" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.8127313" visible="true" weight="0.24833998" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4974093" weight="0.3368984" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
